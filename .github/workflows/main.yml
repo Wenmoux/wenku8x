@@ -1,0 +1,33 @@
+name: build wenku8x
+on:
+  create : 
+    tags:
+      - v*
+jobs:
+  build:
+    name: Build APK
+    # 定义运行环境
+    runs-on: ubuntu-latest
+    # 执行步骤
+    steps:
+      # 步骤执行之前，先拉取最新代码
+      - uses: actions/checkout@v1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '12.x'
+      # 配置 Flutter 环境
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '3.13.8'
+      # 执行构建之前，更新 flutter 依赖
+      - run: flutter pub get
+      # 测试
+    
+      - run: flutter build apk --release --target-platform=android-arm64 
+      - name: Create a Release APK
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/app/outputs/flutter-apk/*.apk"
+          token: ${{ secrets.TOKEN }} 
+          replacesArtifacts: false
+          allowUpdates: true
